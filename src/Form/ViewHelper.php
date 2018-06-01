@@ -73,7 +73,9 @@ trait ViewHelper {
                 foreach ($element as $em) {
                     echo '<div class="form_element">' . PHP_EOL;
                     if ($em instanceof \Zend\Form\Element\Collection) {
-                        echo $this->collectionHelper->render($em) . PHP_EOL;
+                        if($em->getCount()>0){
+                            echo $this->collectionHelper->render($em) . PHP_EOL;
+                        }
                     } else {
                         echo $this->rowHelper->render($em) . PHP_EOL;
                     }
