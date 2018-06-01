@@ -1,0 +1,33 @@
+{
+    "name": "bishwopl/bplcrud",
+    "description": "Simple crud package and form generetor using zend-form and doctrine-orm",
+    "type": "library",
+    "homepage": "https://github.com/bishwopl/bplcrud",
+    "keywords": [
+        "crud",
+        "form-generator",
+        "zend-form",
+        "doctrine"
+    ],
+    "authors": [
+        {
+            "name": "Bishwo Prasad Lamichhane",
+            "email": "bishwo.prasad@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.6.0",
+        "zendframework/zend-form": "^2.11",
+        "doctrine/orm": "^2.5",
+        "zendframework/zend-i18n": "^2.8",
+        "zendframework/zend-paginator": "^2.8",
+        "zendframework/zend-code": "^3.1",
+        "zendframework/zend-hydrator": "^2.4",
+        "zendframework/zend-view": "^2.10"
+    },
+    "autoload": {
+        "psr-4": {
+            "BplCrud\\": "src"
+        }
+    }
+}
