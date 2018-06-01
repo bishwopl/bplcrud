@@ -1,6 +1,6 @@
 {
     "name": "bishwopl/bplcrud",
-    "description": "Simple crud package and form generetor using zend-form and doctrine-orm",
+    "description": "Simple crud package and form generator using zend-form and doctrine-orm",
     "type": "library",
     "homepage": "https://github.com/bishwopl/bplcrud",
     "keywords": [
