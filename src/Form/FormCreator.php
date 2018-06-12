@@ -199,7 +199,11 @@ class FormCreator {
     private function createFilter($fieldDetail) {
         $fieldName = $fieldDetail['fieldName'];
         $required = 'false';
-        if (isset($fieldDetail['nullable'])) {
+        $isPrimary = isset($fieldDetail['id']) && $fieldDetail['id'] == true;
+        if($isPrimary){
+            $required = 'false';
+        }
+        elseif (isset($fieldDetail['nullable'])) {
             $required = $fieldDetail['nullable'] == false ? 'true' : 'false';
         }
 
