@@ -6,8 +6,10 @@
 
 namespace BplCrud\Form;
 
-trait ViewHelper {
+use BplCrud\Contract\FormRendererInterface;
+use Zend\Form\FormInterface;
 
+class FormRenderer implements FormRendererInterface{
     /**
      *
      * @var \Zend\Form\View\Helper\FormRow 
@@ -43,8 +45,15 @@ trait ViewHelper {
      * @var \Zend\View\Renderer\PhpRenderer 
      */
     protected $renderer;
+    
+    /**
+     *
+     * @var \Zend\Form\FormInterface
+     */
+    protected $form;
 
-    public function initializeViewHelpers() {
+
+    public function __construct() {
         $this->rowHelper = new \Zend\Form\View\Helper\FormRow();
         $this->elementHelper = new \Zend\Form\View\Helper\FormElement();
         $this->collectionHelper = new \Zend\Form\View\Helper\FormCollection();
@@ -59,12 +68,9 @@ trait ViewHelper {
         $this->elementHelper->setView($this->renderer);
         $this->collectionHelper->setView($this->renderer);
     }
-
-    /**
-     * Displays the form without formatting 
-     * This method can be used for testing
-     */
-    public function displayForm() {
+    
+    public function displayForm(FormInterface $form) {
+        $this->form = $form;
         $this->form->prepare();
         echo $this->formHelper->openTag($this->form);
 

@@ -9,12 +9,12 @@ namespace BplCrud;
 use Zend\Form\FormInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\Pagination\Paginator;
-use Doctrine\Common\Persistence\ObjectRepository;
 use BplCrud\QueryFilter;
+use BplCrud\Contract\FormRendererInterface;
+use BplCrud\Form\FormRenderer;
 
-final class Crud {
+class Crud {
     
-    use \BplCrud\Form\ViewHelper;
     /**
      * Fully qualified class name of the object
      * @var string 
@@ -48,12 +48,20 @@ final class Crud {
     public $objectRepository;
     
     /**
+     * Form Renderer
+     * Default renderer is plain but custom renderer can be injected to Crud class
+     * via __construct(...) and custom renderer must implement \BplCrud\Contract\FormRendererInterface
+     * @var \BplCrud\Contract\FormRendererInterface
+     */
+    public $formRenderer;
+
+    /**
      * Default constructor
      * @param FormInterface $form
      * @param EntityManagerInterface $persistanceManager
      * @param string $objectClass
      */
-    public function __construct(FormInterface $form, EntityManagerInterface $persistanceManager, $objectClass = '') {
+    public function __construct(FormInterface $form, EntityManagerInterface $persistanceManager, $objectClass = '', FormRendererInterface $formRenderer=NULL) {
         $this->form = $form;
         $this->persistanceManager = $persistanceManager;
         if ($objectClass == '') {
@@ -61,7 +69,15 @@ final class Crud {
         }
         $this->objectClass = $objectClass;
         $this->objectRepository = $this->persistanceManager->getRepository($objectClass);
-        $this->initializeViewHelpers();
+        
+        /**
+         * If renderer is not provided; use default renderer
+         */
+        if($formRenderer==NULL){
+            $this->formRenderer = new FormRenderer();
+        }else{
+            $this->formRenderer = $formRenderer;
+        }
     }
 
     /**
@@ -92,7 +108,7 @@ final class Crud {
      * Check if form is valid
      * @return boolean
      */
-    public function isvalid() {
+    public function isValid() {
         return $this->form->isValid();
     }
 
@@ -173,6 +189,10 @@ final class Crud {
             $choices[] = $classMeta->getName(); // Entity FQCN
         }
         return $choices;
+    }
+    
+    public function displayForm(){
+        $this->formRenderer->displayForm($this->form);
     }
     
 }
