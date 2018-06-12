@@ -33,7 +33,7 @@ class FormCreator {
     protected $fieldSetData = [];
 
     public function __construct(
-    ClassMetadata $classMetadata, $hyadratorClassName, $formNamespace, $saveDestination, $defaultElementCSSClass = ""
+        ClassMetadata $classMetadata, $hyadratorClassName, $formNamespace, $saveDestination, $defaultElementCSSClass = ""
     ) {
         $this->objectClassName = $classMetadata->name;
         $this->hyadratorClassName = $hyadratorClassName;
@@ -74,9 +74,9 @@ class FormCreator {
 
             $fieldName = $field['fieldName'];
             $type = $field['type'];
-
+            $isPrimary = isset($field['id']) && $field['id'] == true;
             $body .= '$this->add([' . PHP_EOL
-                . '"type" => ' . $this->getElementType($type) . '::class, ' . PHP_EOL
+                . '"type" => ' . $this->getElementType($type, $isPrimary) . '::class, ' . PHP_EOL
                 . '"name" => "' . $fieldName . '", ' . PHP_EOL
                 . '"options" => [' . PHP_EOL
                 . '"label" => "' . $fieldName . '",' . PHP_EOL . '], ' . PHP_EOL
@@ -219,9 +219,11 @@ class FormCreator {
         return $temp[sizeof($temp) - 1];
     }
 
-    private function getElementType($data) {
+    private function getElementType($data, $isPrimary = false) {
         $type = \Zend\Form\Element\Text::class;
-        if ($data == 'string') {
+        if ($isPrimary) {
+            $type = \Zend\Form\Element\Hidden::class;
+        } elseif ($data == 'string') {
             $type = \Zend\Form\Element\Text::class;
         } elseif ($data == 'text') {
             $type = \Zend\Form\Element\Textarea::class;
