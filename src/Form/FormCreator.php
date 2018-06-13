@@ -31,9 +31,10 @@ class FormCreator {
      */
     protected $classMetadata;
     protected $fieldSetData = [];
+    protected $ignoreColumns;
 
     public function __construct(
-        ClassMetadata $classMetadata, $hyadratorClassName, $formNamespace, $saveDestination, $defaultElementCSSClass = ""
+        ClassMetadata $classMetadata, $hyadratorClassName, $formNamespace, $saveDestination, $defaultElementCSSClass = "", $ignoreColumns=[]
     ) {
         $this->objectClassName = $classMetadata->name;
         $this->hyadratorClassName = $hyadratorClassName;
@@ -42,6 +43,7 @@ class FormCreator {
         $this->classNameOnly = $this->getClassNameOnly($this->objectClassName);
         $this->classMetadata = $classMetadata;
         $this->defaultElemectCSSClass = $defaultElementCSSClass;
+        $this->ignoreColumns = $ignoreColumns;
 
         if (!is_dir($this->saveDestination . '/' . $this->classNameOnly)) {
             mkdir($this->saveDestination . '/' . $this->classNameOnly);
@@ -71,8 +73,10 @@ class FormCreator {
         $bodyFilter = "return [" . PHP_EOL;
 
         foreach ($fieldMappings as $field) {
-
             $fieldName = $field['fieldName'];
+            if(in_array($fieldName, $this->ignoreColumns)){
+                continue;
+            }
             $type = $field['type'];
             $isPrimary = isset($field['id']) && $field['id'] == true;
             $body .= '$this->add([' . PHP_EOL
@@ -81,7 +85,7 @@ class FormCreator {
                 . '"options" => [' . PHP_EOL
                 . '"label" => "' . $fieldName . '",' . PHP_EOL . '], ' . PHP_EOL
                 . '"attributes" => [' . PHP_EOL
-                . '"id"   => "' . $fieldName . '_id", ' . PHP_EOL
+                . '"id"   => "' . $fieldName . 'Id", ' . PHP_EOL
                 . '"placeholder"=>"' . $fieldName . '",' . PHP_EOL
                 . '"class" => "' . $this->defaultElemectCSSClass . '",' . PHP_EOL
                 . '],' . PHP_EOL
@@ -91,6 +95,9 @@ class FormCreator {
 
         foreach ($associationMapping as $field) {
             $fieldName = $field['fieldName'];
+            if(in_array($fieldName, $this->ignoreColumns)){
+                continue;
+            }
             $targetEntity = $field['targetEntity'];
 
             if (isset($field['joinColumns'])) {
@@ -108,9 +115,9 @@ class FormCreator {
                     . '],' . PHP_EOL
                     . '"attributes" => [ ' . PHP_EOL
                     . '"class" => "' . $this->defaultElemectCSSClass . '",' . PHP_EOL
-                    . '"id" => "' . $fieldName . '_id",' . PHP_EOL
+                    . '"id" => "' . $fieldName . 'Id",' . PHP_EOL
                     . '"placeholder"=>"' . $fieldName . '",' . PHP_EOL
-                    . ']' . PHP_EOL
+                    . '],' . PHP_EOL
                     . ']);' . PHP_EOL;
                 $bodyFilter .= $this->createFilter($field);
             } else {
