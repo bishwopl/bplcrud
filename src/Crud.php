@@ -184,13 +184,16 @@ class Crud {
      */
     static public function getAllEntityNames(EntityManagerInterface $persistanceManager){
         $metadata = $persistanceManager->getMetadataFactory()->getAllMetadata();
-        $choices = [];
+        $entityNames = [];
         foreach($metadata as $classMeta) {
-            $choices[] = $classMeta->getName(); // Entity FQCN
+            $entityNames[] = $classMeta->getName(); // Entity FQCN
         }
-        return $choices;
+        return $entityNames;
     }
     
+    /**
+     * Displays form using form renderer 
+     */
     public function displayForm(){
         $this->formRenderer->displayForm($this->form);
     }
