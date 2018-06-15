@@ -34,7 +34,7 @@ class FormCreator {
     protected $ignoreColumns;
 
     public function __construct(
-        ClassMetadata $classMetadata, $hyadratorClassName, $formNamespace, $saveDestination, $defaultElementCSSClass = "", $ignoreColumns=[]
+        ClassMetadata $classMetadata, $hyadratorClassName, $formNamespace, $saveDestination, $defaultElementCSSClass = "", $ignoreColumns = []
     ) {
         $this->objectClassName = $classMetadata->name;
         $this->hyadratorClassName = $hyadratorClassName;
@@ -45,7 +45,8 @@ class FormCreator {
         $this->defaultElemectCSSClass = $defaultElementCSSClass;
         $this->ignoreColumns = $ignoreColumns;
 
-        if (!is_dir($this->saveDestination . '/' . $this->classNameOnly)) {
+        $testClass = new \ReflectionClass($this->objectClassName);
+        if (!is_dir($this->saveDestination . '/' . $this->classNameOnly) && !$testClass->isAbstract()) {
             mkdir($this->saveDestination . '/' . $this->classNameOnly);
         }
 
@@ -54,8 +55,12 @@ class FormCreator {
     }
 
     public function generateForm() {
-        $this->createFieldSet();
-        $this->createForm();
+        $testClass = new \ReflectionClass($this->objectClassName);
+        
+        if (!$testClass->isAbstract()) {
+            $this->createFieldSet();
+            $this->createForm();
+        }
     }
 
     private function createFieldSet() {
@@ -74,7 +79,7 @@ class FormCreator {
 
         foreach ($fieldMappings as $field) {
             $fieldName = $field['fieldName'];
-            if(in_array($fieldName, $this->ignoreColumns)){
+            if (in_array($fieldName, $this->ignoreColumns)) {
                 continue;
             }
             $type = $field['type'];
@@ -95,7 +100,7 @@ class FormCreator {
 
         foreach ($associationMapping as $field) {
             $fieldName = $field['fieldName'];
-            if(in_array($fieldName, $this->ignoreColumns)){
+            if (in_array($fieldName, $this->ignoreColumns)) {
                 continue;
             }
             $targetEntity = $field['targetEntity'];
@@ -207,10 +212,9 @@ class FormCreator {
         $fieldName = $fieldDetail['fieldName'];
         $required = 'false';
         $isPrimary = isset($fieldDetail['id']) && $fieldDetail['id'] == true;
-        if($isPrimary){
+        if ($isPrimary) {
             $required = 'false';
-        }
-        elseif (isset($fieldDetail['nullable'])) {
+        } elseif (isset($fieldDetail['nullable'])) {
             $required = $fieldDetail['nullable'] == false ? 'true' : 'false';
         }
 
