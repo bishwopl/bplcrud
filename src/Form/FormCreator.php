@@ -44,12 +44,6 @@ class FormCreator {
         $this->classMetadata = $classMetadata;
         $this->defaultElemectCSSClass = $defaultElementCSSClass;
         $this->ignoreColumns = $ignoreColumns;
-
-        $testClass = new \ReflectionClass($this->objectClassName);
-        if (!is_dir($this->saveDestination . '/' . $this->classNameOnly) && !$testClass->isAbstract()) {
-            mkdir($this->saveDestination . '/' . $this->classNameOnly);
-        }
-
         $this->saveDestination .= '/' . $this->classNameOnly;
         $this->formNamespace .= '\\' . $this->classNameOnly;
     }
@@ -57,6 +51,9 @@ class FormCreator {
     public function generateForm() {
         $testClass = new \ReflectionClass($this->objectClassName);
         
+        if (!is_dir($this->saveDestination . '/' . $this->classNameOnly) && !$testClass->isAbstract()) {
+            mkdir($this->saveDestination . '/' . $this->classNameOnly);
+        }
         if (!$testClass->isAbstract()) {
             $this->createFieldSet();
             $this->createForm();
