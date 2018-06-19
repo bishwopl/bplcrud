@@ -51,8 +51,8 @@ class FormCreator {
     public function generateForm() {
         $testClass = new \ReflectionClass($this->objectClassName);
         
-        if (!is_dir($this->saveDestination . '/' . $this->classNameOnly) && !$testClass->isAbstract()) {
-            mkdir($this->saveDestination . '/' . $this->classNameOnly);
+        if (!is_dir($this->saveDestination ) && !$testClass->isAbstract()) {
+            mkdir($this->saveDestination);
         }
         if (!$testClass->isAbstract()) {
             $this->createFieldSet();
