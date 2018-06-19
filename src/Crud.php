@@ -12,8 +12,9 @@ use Doctrine\ORM\Tools\Pagination\Paginator;
 use BplCrud\QueryFilter;
 use BplCrud\Contract\FormRendererInterface;
 use BplCrud\Form\FormRenderer;
+use BplCrud\Contract\CrudInterface;
 
-class Crud {
+class Crud implements CrudInterface{
     
     /**
      * Fully qualified class name of the object
