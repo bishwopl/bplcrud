@@ -128,21 +128,42 @@ class Crud implements CrudInterface{
     }
 
     /**
+     * Read data from table
+     * Order by is of type ["columnName1"=>"ASC or DESC", "columnName1"=>"ASC or DESC"]
      * 
      * @param \BplCrud\QueryFilter $queryFilter
      * @param interger $offset
      * @param interger $limit
      * @return \Doctrine\ORM\Tools\Pagination\Paginator
+     * @param array $orderBy
      */
-    public function read(QueryFilter $queryFilter, $offset = 0, $limit = 10) {
+    public function read(QueryFilter $queryFilter, $offset = 0, $limit = 10, $orderBy=[]) {
         $qb = $this->persistanceManager->createQueryBuilder();
         $qb->select('u')->from($this->objectClass, 'u');
         $qb = $queryFilter->getModifiedQueryBuilder($qb);
         $qb->setFirstResult($offset);
         $qb->setMaxResults($limit);
+        
+        foreach($orderBy as $sort=>$order){
+            $qb->addOrderBy($sort, $order);
+        }
+        
         $query = $qb->getQuery();
         $paginator = new Paginator($query);
         return $paginator;
+    }
+    
+    /**
+     * Return total count of records in a table marching $queryFilter
+     * @param \BplCrud\QueryFilter $queryFilter
+     * @return integer
+     */
+    public function getTotalRecordCount(QueryFilter $queryFilter){
+        $qb = $this->persistanceManager->createQueryBuilder();
+        $qb->select('count(u)')->from($this->objectClass, 'u');
+        $qb = $queryFilter->getModifiedQueryBuilder($qb);
+        $count = $qb->getQuery()->getSingleScalarResult();
+        return $count;
     }
 
     /**
@@ -179,20 +200,6 @@ class Crud implements CrudInterface{
     }
     
     /**
-     * Returns FQCN of all the entities managed by $persistanceManager
-     * @param EntityManagerInterface $persistanceManager
-     * @return array
-     */
-    static public function getAllEntityNames(EntityManagerInterface $persistanceManager){
-        $metadata = $persistanceManager->getMetadataFactory()->getAllMetadata();
-        $entityNames = [];
-        foreach($metadata as $classMeta) {
-            $entityNames[] = $classMeta->getName(); // Entity FQCN
-        }
-        return $entityNames;
-    }
-    
-    /**
      * Displays form using form renderer 
      */
     public function displayForm(){
@@ -206,6 +213,20 @@ class Crud implements CrudInterface{
             $ret[] = get_object_vars($d);
         }
         return $ret;
+    }
+    
+    /**
+     * Returns FQCN of all the entities managed by $persistanceManager
+     * @param EntityManagerInterface $persistanceManager
+     * @return array
+     */
+    static public function getAllEntityNames(EntityManagerInterface $persistanceManager){
+        $metadata = $persistanceManager->getMetadataFactory()->getAllMetadata();
+        $entityNames = [];
+        foreach($metadata as $classMeta) {
+            $entityNames[] = $classMeta->getName(); // Entity FQCN
+        }
+        return $entityNames;
     }
     
 }
