@@ -199,4 +199,13 @@ class Crud implements CrudInterface{
         $this->formRenderer->displayForm($this->form);
     }
     
+    public function readAsArray(QueryFilter $queryFilter, $offset = 0, $limit = 10) {
+        $ret = [];
+        $data = $this->read($queryFilter, $offset, $limit);
+        foreach($data as $d){
+            $ret[] = get_object_vars($d);
+        }
+        return $ret;
+    }
+    
 }
