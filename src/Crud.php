@@ -14,8 +14,8 @@ use BplCrud\Contract\FormRendererInterface;
 use BplCrud\Form\FormRenderer;
 use BplCrud\Contract\CrudInterface;
 
-class Crud implements CrudInterface{
-    
+class Crud implements CrudInterface {
+
     /**
      * Fully qualified class name of the object
      * @var string 
@@ -47,7 +47,7 @@ class Crud implements CrudInterface{
      * @var \Doctrine\Common\Persistence\ObjectRepository 
      */
     public $objectRepository;
-    
+
     /**
      * Form Renderer
      * Default renderer is plain but custom renderer can be injected to Crud class
@@ -62,7 +62,7 @@ class Crud implements CrudInterface{
      * @param EntityManagerInterface $persistanceManager
      * @param string $objectClass
      */
-    public function __construct(FormInterface $form, EntityManagerInterface $persistanceManager, $objectClass = '', FormRendererInterface $formRenderer=NULL) {
+    public function __construct(FormInterface $form, EntityManagerInterface $persistanceManager, $objectClass = '', FormRendererInterface $formRenderer = NULL) {
         $this->form = $form;
         $this->persistanceManager = $persistanceManager;
         if ($objectClass == '') {
@@ -70,13 +70,13 @@ class Crud implements CrudInterface{
         }
         $this->objectClass = $objectClass;
         $this->objectRepository = $this->persistanceManager->getRepository($objectClass);
-        
+
         /**
          * If renderer is not provided; use default renderer
          */
-        if($formRenderer==NULL){
+        if ($formRenderer == NULL) {
             $this->formRenderer = new FormRenderer();
-        }else{
+        } else {
             $this->formRenderer = $formRenderer;
         }
     }
@@ -130,35 +130,35 @@ class Crud implements CrudInterface{
     /**
      * Read data from table
      * Order by is of type ["columnName1"=>"ASC or DESC", "columnName1"=>"ASC or DESC"]
-     * 
      * @param \BplCrud\QueryFilter $queryFilter
      * @param interger $offset
      * @param interger $limit
-     * @return \Doctrine\ORM\Tools\Pagination\Paginator
      * @param array $orderBy
+     * @return \Doctrine\ORM\Tools\Pagination\Paginator
      */
-    public function read(QueryFilter $queryFilter, $offset = 0, $limit = 10, $orderBy=[]) {
+    public function read(QueryFilter $queryFilter, $offset = 0, $limit = 10, $orderBy = []) {
         $qb = $this->persistanceManager->createQueryBuilder();
         $qb->select('u')->from($this->objectClass, 'u');
         $qb = $queryFilter->getModifiedQueryBuilder($qb);
         $qb->setFirstResult($offset);
         $qb->setMaxResults($limit);
-        
-        foreach($orderBy as $sort=>$order){
-            $qb->addOrderBy($sort, $order);
+
+        foreach ($orderBy as $sort => $order) {
+            $qb->addOrderBy('u.'.$sort, $order);
         }
-        
+
         $query = $qb->getQuery();
+
         $paginator = new Paginator($query);
         return $paginator;
     }
-    
+
     /**
      * Return total count of records in a table marching $queryFilter
      * @param \BplCrud\QueryFilter $queryFilter
      * @return integer
      */
-    public function getTotalRecordCount(QueryFilter $queryFilter){
+    public function getTotalRecordCount(QueryFilter $queryFilter) {
         $qb = $this->persistanceManager->createQueryBuilder();
         $qb->select('count(u)')->from($this->objectClass, 'u');
         $qb = $queryFilter->getModifiedQueryBuilder($qb);
@@ -195,38 +195,38 @@ class Crud implements CrudInterface{
      * Get form element
      * @return Zend\Form\FormInterface
      */
-    public function getForm(){
+    public function getForm() {
         return $this->form;
     }
-    
+
     /**
      * Displays form using form renderer 
      */
-    public function displayForm(){
+    public function displayForm() {
         $this->formRenderer->displayForm($this->form);
     }
-    
+
     public function readAsArray(QueryFilter $queryFilter, $offset = 0, $limit = 10) {
         $ret = [];
         $data = $this->read($queryFilter, $offset, $limit);
-        foreach($data as $d){
+        foreach ($data as $d) {
             $ret[] = get_object_vars($d);
         }
         return $ret;
     }
-    
+
     /**
      * Returns FQCN of all the entities managed by $persistanceManager
      * @param EntityManagerInterface $persistanceManager
      * @return array
      */
-    static public function getAllEntityNames(EntityManagerInterface $persistanceManager){
+    static public function getAllEntityNames(EntityManagerInterface $persistanceManager) {
         $metadata = $persistanceManager->getMetadataFactory()->getAllMetadata();
         $entityNames = [];
-        foreach($metadata as $classMeta) {
+        foreach ($metadata as $classMeta) {
             $entityNames[] = $classMeta->getName(); // Entity FQCN
         }
         return $entityNames;
     }
-    
+
 }
