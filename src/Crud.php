@@ -82,6 +82,13 @@ class Crud implements CrudInterface {
     }
 
     /**
+     * @return string
+     */
+    public function getObjectClass(){
+        return $this->objectClass;
+    }
+    
+    /**
      * Bind object to form
      * @param type $object
      */
