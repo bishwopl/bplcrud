@@ -136,7 +136,8 @@ class Crud implements CrudInterface {
 
     /**
      * Read data from table
-     * Order by is of type ["columnName1"=>"ASC or DESC", "columnName1"=>"ASC or DESC"]
+     * Order by is of type ["columnName1"=>"ASC/DESC", "columnName2"=>"ASC/DESC"]
+     * 
      * @param \BplCrud\QueryFilter $queryFilter
      * @param interger $offset
      * @param interger $limit
@@ -221,7 +222,106 @@ class Crud implements CrudInterface {
         }
         return $ret;
     }
+    
+    /**
+     * Import data from csv uses header row as field names
+     * @param string $absFilePath
+     * @param string $keyFieldName
+     * @param string $fieldSetName
+     * @return array
+     * @throws \Exception
+     */
+    public function importFromCSV($absFilePath, $keyFieldName, $baseFieldSetName='', $updateIfFound=true, $ignoreErrors=true){
+        $ret = [
+            'result' => false,
+            'messages' => [],
+            'errors' =>[],
+            'rowsInserted' => 0,
+            'rowsUpdated' => 0
+        ];
+        $totalRecords = 0;
+        $formData = [];
+        
+        $validator = new \Zend\Validator\File\Extension(["extention"=>'csv','case'=>false]);
+        if(!$validator->isValid($absFilePath)){
+            throw new \Exception("File must exist and be of .csv type.");
+        }
+        $fileHandle = fopen($absFilePath, 'r');
+        $fieldNames = fgetcsv($fileHandle, 99999, ",");
+        if(!in_array($keyFieldName, $fieldNames)){
+            throw new \Exception($keyFieldName ." must be present and cannot be empty");
+        }
+        
+        /**
+         * Create associative array of data
+         */
+        while (($data = fgetcsv($fileHandle, 99999, ",")) !== FALSE) {
+            for($i=0;$i<sizeof($fieldNames);$i++){
+                $formData[$totalRecords][$fieldNames[$i]] = isset($data[$i])?$data[$i]:NULL;
+            }
+            $totalRecords++;
+        }
+        
+        foreach($formData as $rowNo=>$row){
+            $d = [];
+            $row = $this->manipulateImportDataRow($row);
+            if($baseFieldSetName!=''){
+                $d[$baseFieldSetName] = $row;
+            }
+            else{
+               $d = $row;
+            }
+            
+            $obj = $this->objectRepository->findOneBy([$keyFieldName=>$row[$keyFieldName]]);
+            if(is_object($obj) && $updateIfFound){
+                //record exists so update it
+                $this->form->bind($obj);
+                $this->setData($d);
+                if($this->update()==false){
+                    $msg = "Data validation error at row ".$rowNo." during update";
+                    if($ignoreErrors){
+                        $ret['messages'][] = $msg;
+                        $ret['errors'][] = ['rowNo'=>$rowNo,'message'=>$this->form->getMessages()];
+                    }
+                    else{
+                        throw new \Exception($msg);
+                    }
+                }else{
+                    $ret['messages'][] = "Data updated for ".$keyFieldName.' : '.$row[$keyFieldName];
+                    $ret['rowsUpdated']++;
+                }
+            }else{
+                //record doesnot exist so insert it
+                $this->setData($d);
+                if($this->create()==false){
+                    $msg = "Data validation error at row ".$rowNo;
+                    if($ignoreErrors){
+                        $ret['messages'][] = $msg;
+                        $ret['errors'][] = ['rowNo'=>$rowNo,'message'=>$this->form->getMessages()];
+                    }
+                    else{
+                        throw new \Exception($msg);
+                    }
+                }else{
+                    $ret['messages'][] = "Data inserted for ".$keyFieldName.' : '.$row[$keyFieldName];
+                    $ret['rowsInserted']++;
+                }
+            }
+        }
+        $ret['result'] = true;
+        return $ret;
+    }
 
+    /**
+     * Use this function in extended classes to manipulate data row before import.
+     * It can be used to set application generated value which the user will not provide in csv file.
+     * @param array $row
+     * @return array
+     */
+    protected function manipulateImportDataRow($row){
+        return $row;
+    }
+    
     /**
      * Returns FQCN of all the entities managed by $persistanceManager
      * @param EntityManagerInterface $persistanceManager
