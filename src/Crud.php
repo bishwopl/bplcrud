@@ -263,6 +263,7 @@ class Crud implements CrudInterface {
         }
         
         foreach($formData as $rowNo=>$row){
+            $this->form->bind(new $this->objectClass);
             $d = [];
             $row = $this->manipulateImportDataRow($row);
             if($baseFieldSetName!=''){
