@@ -50,8 +50,8 @@ class FormCreator {
 
     public function generateForm() {
         $testClass = new \ReflectionClass($this->objectClassName);
-        
-        if (!is_dir($this->saveDestination ) && !$testClass->isAbstract()) {
+
+        if (!is_dir($this->saveDestination) && !$testClass->isAbstract()) {
             mkdir($this->saveDestination);
         }
         if (!$testClass->isAbstract()) {

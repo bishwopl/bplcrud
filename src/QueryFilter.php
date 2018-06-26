@@ -57,41 +57,41 @@ class QueryFilter {
         $paramCount = 1;
         $params = [];
         foreach ($this->queryFilterArray as $filter) {
-            $colName                = $filter['colName'];
-            $value                  = $filter['value'];
-            $compareType            = $filter['compareType'];
+            $colName = $filter['colName'];
+            $value = $filter['value'];
+            $compareType = $filter['compareType'];
             $perviousFilterCombiner = $filter['perviousFilterCombiner'];
-            
-            if(strpos($colName, '.')===false){
-                $colName = 'u.'.$colName;
+
+            if (strpos($colName, '.') === false) {
+                $colName = 'u.' . $colName;
             }
-            
+
             $cleanColName = str_replace('.', '_', $colName);
-            
+
             if ($compareType == self::$eq) {
-                $expr = $qb->expr()->eq($colName, ':'.$cleanColName.$paramCount);
+                $expr = $qb->expr()->eq($colName, ':' . $cleanColName . $paramCount);
             } elseif ($compareType == self::$gt) {
-                $expr = $qb->expr()->gt($colName, ':'.$cleanColName.$paramCount);
+                $expr = $qb->expr()->gt($colName, ':' . $cleanColName . $paramCount);
             } elseif ($compareType == self::$gte) {
-                $expr = $qb->expr()->gte($colName, ':'.$cleanColName.$paramCount);
+                $expr = $qb->expr()->gte($colName, ':' . $cleanColName . $paramCount);
             } elseif ($compareType == self::$isNotNull) {
                 $expr = $qb->expr()->isNotNull($colName);
             } elseif ($compareType == self::$isNotNull) {
                 $expr = $qb->expr()->isNull($colName);
             } elseif ($compareType == self::$like) {
-                $expr = $qb->expr()->like($colName, ':'.$cleanColName.$paramCount);
+                $expr = $qb->expr()->like($colName, ':' . $cleanColName . $paramCount);
             } elseif ($compareType == self::$lt) {
-                $expr = $qb->expr()->lt($colName, ':'.$cleanColName.$paramCount);
+                $expr = $qb->expr()->lt($colName, ':' . $cleanColName . $paramCount);
             } elseif ($compareType == self::$lte) {
-                $expr = $qb->expr()->lte($colName, ':'.$cleanColName.$paramCount);
+                $expr = $qb->expr()->lte($colName, ':' . $cleanColName . $paramCount);
             } elseif ($compareType == self::$neq) {
-                $expr = $qb->expr()->neq($colName, ':'.$cleanColName.$paramCount);
+                $expr = $qb->expr()->neq($colName, ':' . $cleanColName . $paramCount);
             } elseif ($compareType == self::$notLike) {
-                $expr = $qb->expr()->notLike($colName, ':'.$cleanColName.$paramCount);
+                $expr = $qb->expr()->notLike($colName, ':' . $cleanColName . $paramCount);
             } else {
                 throw new InvalidComparatorException("Invalid comparator selected");
             }
-            $params[$cleanColName.$paramCount] = $value;
+            $params[$cleanColName . $paramCount] = $value;
             if ($perviousFilterCombiner == self::$and) {
                 $qb->andWhere($expr);
             } elseif ($perviousFilterCombiner == self::$or) {

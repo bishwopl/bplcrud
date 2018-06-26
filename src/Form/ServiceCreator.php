@@ -18,25 +18,25 @@ class ServiceCreator {
      * @var \Doctrine\ORM\EntityManagerInterface 
      */
     private $persistanceManager;
-    
+
     /**
      *
      * @var string 
      */
     private $entityNamespace;
-    
+
     /**
      *
      * @var string 
      */
     private $formNamespace;
-    
+
     /**
      *
      * @var string 
      */
     private $serviceNamespace;
-    
+
     /**
      *
      * @var string 
@@ -57,15 +57,15 @@ class ServiceCreator {
             $dummy = explode('\\', $fcqn);
             $entityName = $dummy[sizeof($dummy) - 1];
 
-            $body = '$formRenderer = new '.$this->formRendererClassName.'(); ' . PHP_EOL
+            $body = '$formRenderer = new ' . $this->formRendererClassName . '(); ' . PHP_EOL
                 . '$form = new ' . $entityName . 'Form($persistanceManager, "' . lcfirst($entityName) . '");' . PHP_EOL
                 . 'parent::__construct($form, $persistanceManager, ' . $entityName . '::class, $formRenderer);';
 
             $serviceGenerator = new ClassGenerator(
                 $entityName . 'Service', $this->serviceNamespace, null, Crud::class, [], [], [], null
             );
-            $serviceGenerator->addUse($this->formNamespace.'\\' . $entityName . '\\' . $entityName . 'Form');
-            $serviceGenerator->addUse($this->entityNamespace.'\\' . $entityName);
+            $serviceGenerator->addUse($this->formNamespace . '\\' . $entityName . '\\' . $entityName . 'Form');
+            $serviceGenerator->addUse($this->entityNamespace . '\\' . $entityName);
             $serviceGenerator->addUse($this->formRendererClassName);
             $method = new MethodGenerator(
                 "__construct", [['name' => 'persistanceManager', 'type' => EntityManagerInterface::class]], MethodGenerator::FLAG_PUBLIC, $body

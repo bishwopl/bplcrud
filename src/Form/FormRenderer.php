@@ -9,7 +9,8 @@ namespace BplCrud\Form;
 use BplCrud\Contract\FormRendererInterface;
 use Zend\Form\FormInterface;
 
-class FormRenderer implements FormRendererInterface{
+class FormRenderer implements FormRendererInterface {
+
     /**
      *
      * @var \Zend\Form\View\Helper\FormRow 
@@ -45,13 +46,12 @@ class FormRenderer implements FormRendererInterface{
      * @var \Zend\View\Renderer\PhpRenderer 
      */
     protected $renderer;
-    
+
     /**
      *
      * @var \Zend\Form\FormInterface
      */
     protected $form;
-
 
     public function __construct() {
         $this->rowHelper = new \Zend\Form\View\Helper\FormRow();
@@ -68,7 +68,7 @@ class FormRenderer implements FormRendererInterface{
         $this->elementHelper->setView($this->renderer);
         $this->collectionHelper->setView($this->renderer);
     }
-    
+
     public function displayForm(FormInterface $form) {
         $this->form = $form;
         $this->form->prepare();
@@ -79,7 +79,7 @@ class FormRenderer implements FormRendererInterface{
                 foreach ($element as $em) {
                     echo '<div class="form_element">' . PHP_EOL;
                     if ($em instanceof \Zend\Form\Element\Collection) {
-                        if($em->getCount()>0){
+                        if ($em->getCount() > 0) {
                             echo $this->collectionHelper->render($em) . PHP_EOL;
                         }
                     } else {

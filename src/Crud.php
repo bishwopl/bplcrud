@@ -248,7 +248,7 @@ class Crud implements CrudInterface {
      * @throws \Exception
      */
     public function importFromCSV($absFilePath, $keyFieldName, $baseFieldSetName = '', $updateIfFound = true, $ignoreErrors = true) {
-        $ret = [ 'result' => false, 'messages' => [], 'errors' => [], 'rowsInserted' => 0, 'rowsUpdated' => 0 ];
+        $ret = ['result' => false, 'messages' => [], 'errors' => [], 'rowsInserted' => 0, 'rowsUpdated' => 0];
         $totalRecords = 0;
         $formData = [];
 
