@@ -247,7 +247,7 @@ class Crud implements CrudInterface {
      * @return array
      * @throws \Exception
      */
-    public function importFromCSV($absFilePath, $keyFieldName, $baseFieldSetName = '', $updateIfFound = true, $ignoreErrors = true) {
+    public function importFromCSV($absFilePath, $keyFieldName = '', $baseFieldSetName = '', $updateIfFound = true, $ignoreErrors = true) {
         $ret = ['result' => false, 'messages' => [], 'errors' => [], 'rowsInserted' => 0, 'rowsUpdated' => 0];
         $totalRecords = 0;
         $formData = [];
@@ -258,7 +258,7 @@ class Crud implements CrudInterface {
         }
         $fileHandle = fopen($absFilePath, 'r');
         $fieldNames = fgetcsv($fileHandle, 99999, ",");
-        if (!in_array($keyFieldName, $fieldNames)) {
+        if (!in_array($keyFieldName, $fieldNames) && $keyFieldName !== '') {
             throw new \Exception($keyFieldName . " must be present and cannot be empty");
         }
 
@@ -280,40 +280,44 @@ class Crud implements CrudInterface {
             } else {
                 $d = $row;
             }
-
-            $obj = $this->objectRepository->findOneBy([$keyFieldName => $row[$keyFieldName]]);
-            if (is_object($obj) && $updateIfFound) {
-                //record exists so update it
-                $this->form->bind($obj);
-                $this->setData($d);
-                if ($this->update() == false) {
-                    $msg = "Data validation error at row " . $rowNo . " during update";
-                    if ($ignoreErrors) {
-                        $ret['messages'][] = $msg;
-                        $ret['errors'][] = ['rowNo' => $rowNo, 'message' => $this->form->getMessages()];
+            try {
+                $obj = $keyFieldName !== '' ? $this->objectRepository->findOneBy([$keyFieldName => $row[$keyFieldName]]) : NULL;
+                if (is_object($obj) && $updateIfFound) {
+                    //record exists so update it
+                    $this->form->bind($obj);
+                    $this->setData($d);
+                    if ($this->update() == false) {
+                        $msg = "Data validation error at row " . ($rowNo + 1) . " during update";
+                        if ($ignoreErrors) {
+                            $ret['messages'][] = $msg;
+                            $ret['errors'][] = ['rowNo' => $rowNo + 1, 'formError' => $this->form->getMessages()];
+                        } else {
+                            throw new \Exception($msg);
+                        }
                     } else {
-                        throw new \Exception($msg);
+                        $ret['messages'][] = "Data updated for " . $keyFieldName . ' : ' . $row[$keyFieldName];
+                        $ret['rowsUpdated'] ++;
                     }
                 } else {
-                    $ret['messages'][] = "Data updated for " . $keyFieldName . ' : ' . $row[$keyFieldName];
-                    $ret['rowsUpdated'] ++;
-                }
-            } else {
-                //record doesnot exist so insert it
-                $this->form->bind(new $this->objectClass);
-                $this->setData($d);
-                if ($this->create() == false) {
-                    $msg = "Data validation error at row " . $rowNo;
-                    if ($ignoreErrors) {
-                        $ret['messages'][] = $msg;
-                        $ret['errors'][] = ['rowNo' => $rowNo, 'message' => $this->form->getMessages()];
+                    //record doesnot exist so insert it
+                    $this->form->bind(new $this->objectClass);
+                    $this->setData($d);
+                    if ($this->create() == false) {
+                        $msg = "Data validation error at row " . ($rowNo + 1);
+                        if ($ignoreErrors) {
+                            $ret['messages'][] = $msg;
+                            $ret['errors'][] = ['rowNo' => $rowNo + 1, 'formError' => $this->form->getMessages()];
+                        } else {
+                            throw new \Exception($msg);
+                        }
                     } else {
-                        throw new \Exception($msg);
+                        $ret['messages'][] = "Data inserted for rowNo : " . ($rowNo + 1);
+                        $ret['rowsInserted'] ++;
                     }
-                } else {
-                    $ret['messages'][] = "Data inserted for " . $keyFieldName . ' : ' . $row[$keyFieldName];
-                    $ret['rowsInserted'] ++;
                 }
+            } catch (\Exception $ex) {
+                $ret['errors'][] = ['rowNo' => $rowNo + 1, "message" => $ex->getMessage(), 'formError' => $this->form->getMessages()];
+                break;
             }
         }
         $ret['result'] = true;
