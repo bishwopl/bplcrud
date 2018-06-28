@@ -319,6 +319,7 @@ class Crud implements CrudInterface {
                 $ret['errors'][] = ['rowNo' => $rowNo + 1, "message" => $ex->getMessage(), 'formError' => $this->form->getMessages()];
                 break;
             }
+            $this->persistanceManager->clear();
         }
         $ret['result'] = true;
         return $ret;
