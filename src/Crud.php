@@ -81,6 +81,9 @@ class Crud implements CrudInterface {
         }
     }
 
+    public function setForm(FormInterface $form){
+        $this->form = $form;
+    }
     /**
      * @return string
      */
@@ -125,13 +128,12 @@ class Crud implements CrudInterface {
      * @return boolean
      */
     public function create() {
-        $ret = false;
-        if ($this->isvalid()) {
+        $valid = $this->isvalid();
+        if ($valid) {
             $this->persistanceManager->persist($this->form->getObject());
             $this->persistanceManager->flush();
-            $ret = true;
         }
-        return $ret;
+        return $valid;
     }
 
     /**
@@ -165,6 +167,19 @@ class Crud implements CrudInterface {
         $paginator = new Paginator($query);
         return $paginator;
     }
+    
+    /**
+     * Extracts object from the form and updates database entry corresponding to that object
+     * @return boolean
+     */
+    public function update() {
+        $valid = $this->isvalid();
+        if ($valid) {
+            $this->persistanceManager->merge($this->form->getObject());
+            $this->persistanceManager->flush();
+        }
+        return $valid;
+    }
 
     /**
      * Return total count of records in a table marching $queryFilter
@@ -176,20 +191,6 @@ class Crud implements CrudInterface {
         $qb->select('count(u)')->from($this->objectClass, 'u');
         $qb = $queryFilter->getModifiedQueryBuilder($qb);
         return $qb->getQuery()->getSingleScalarResult();
-    }
-
-    /**
-     * Extracts object from the form and updates database entry corresponding to that object
-     * @return boolean
-     */
-    public function update() {
-        $ret = false;
-        if ($this->isvalid()) {
-            $this->persistanceManager->merge($this->form->getObject());
-            $this->persistanceManager->flush();
-            $ret = true;
-        }
-        return $ret;
     }
 
     /**
@@ -230,15 +231,6 @@ class Crud implements CrudInterface {
         $this->formRenderer->displayForm($this->form);
     }
 
-    public function readAsArray(QueryFilter $queryFilter, $offset = 0, $limit = 10) {
-        $ret = [];
-        $data = $this->read($queryFilter, $offset, $limit);
-        foreach ($data as $d) {
-            $ret[] = get_object_vars($d);
-        }
-        return $ret;
-    }
-
     /**
      * Import data from csv uses header row as field names
      * @param string $absFilePath
@@ -247,7 +239,7 @@ class Crud implements CrudInterface {
      * @return array
      * @throws \Exception
      */
-    public function importFromCSV($absFilePath, $keyFieldName = '', $baseFieldSetName = '', $updateIfFound = true, $ignoreErrors = true) {
+    public function importFromCSV($absFilePath, $keyFieldName, $baseFieldSetName = '', $updateIfFound = true, $ignoreErrors = true) {
         $ret = ['result' => false, 'messages' => [], 'errors' => [], 'rowsInserted' => 0, 'rowsUpdated' => 0];
         $totalRecords = 0;
         $formData = [];
@@ -258,7 +250,7 @@ class Crud implements CrudInterface {
         }
         $fileHandle = fopen($absFilePath, 'r');
         $fieldNames = fgetcsv($fileHandle, 99999, ",");
-        if (!in_array($keyFieldName, $fieldNames) && $keyFieldName !== '') {
+        if (!in_array($keyFieldName, $fieldNames)) {
             throw new \Exception($keyFieldName . " must be present and cannot be empty");
         }
 
@@ -280,44 +272,40 @@ class Crud implements CrudInterface {
             } else {
                 $d = $row;
             }
-            try {
-                $obj = $keyFieldName !== '' ? $this->objectRepository->findOneBy([$keyFieldName => $row[$keyFieldName]]) : NULL;
-                if (is_object($obj) && $updateIfFound) {
-                    //record exists so update it
-                    $this->form->bind($obj);
-                    $this->setData($d);
-                    if ($this->update() == false) {
-                        $msg = "Data validation error at row " . ($rowNo + 1) . " during update";
-                        if ($ignoreErrors) {
-                            $ret['messages'][] = $msg;
-                            $ret['errors'][] = ['rowNo' => $rowNo + 1, 'formError' => $this->form->getMessages()];
-                        } else {
-                            throw new \Exception($msg);
-                        }
+
+            $obj = $this->objectRepository->findOneBy([$keyFieldName => $row[$keyFieldName]]);
+            if (is_object($obj) && $updateIfFound) {
+                //record exists so update it
+                $this->form->bind($obj);
+                $this->setData($d);
+                if ($this->update() == false) {
+                    $msg = "Data validation error at row " . $rowNo . " during update";
+                    if ($ignoreErrors) {
+                        $ret['messages'][] = $msg;
+                        $ret['errors'][] = ['rowNo' => $rowNo, 'message' => $this->form->getMessages()];
                     } else {
-                        $ret['messages'][] = "Data updated for " . $keyFieldName . ' : ' . $row[$keyFieldName];
-                        $ret['rowsUpdated'] ++;
+                        throw new \Exception($msg);
                     }
                 } else {
-                    //record doesnot exist so insert it
-                    $this->form->bind(new $this->objectClass);
-                    $this->setData($d);
-                    if ($this->create() == false) {
-                        $msg = "Data validation error at row " . ($rowNo + 1);
-                        if ($ignoreErrors) {
-                            $ret['messages'][] = $msg;
-                            $ret['errors'][] = ['rowNo' => $rowNo + 1, 'formError' => $this->form->getMessages()];
-                        } else {
-                            throw new \Exception($msg);
-                        }
-                    } else {
-                        $ret['messages'][] = "Data inserted for rowNo : " . ($rowNo + 1);
-                        $ret['rowsInserted'] ++;
-                    }
+                    $ret['messages'][] = "Data updated for " . $keyFieldName . ' : ' . $row[$keyFieldName];
+                    $ret['rowsUpdated'] ++;
                 }
-            } catch (\Exception $ex) {
-                $ret['errors'][] = ['rowNo' => $rowNo + 1, "message" => $ex->getMessage(), 'formError' => $this->form->getMessages()];
-                break;
+            } else {
+                //record doesnot exist so insert it
+                $this->form->bind(new $this->objectClass);
+                $this->setData($d);
+                if ($this->create() == false) {
+                    $msg = "Data validation error at row " . $rowNo;
+                    if ($ignoreErrors) {
+                        $ret['messages'][] = $msg;
+                        $ret['errors'][] = ['rowNo' => $rowNo, 'message' => $this->form->getMessages()];
+                    } else {
+                        throw new \Exception($msg);
+                    }
+                } else {
+                    $ret['messages'][] = "Data inserted for " . $keyFieldName . ' : ' . $row[$keyFieldName];
+                    $ret['rowsInserted'] ++;
+                }
             }
             $this->persistanceManager->clear();
         }
