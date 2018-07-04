@@ -35,7 +35,7 @@ class Crud implements CrudInterface {
      * Used to store and retrieve object from storage
      * @var Doctrine\ORM\EntityManagerInterface
      */
-    protected $persistanceManager;
+    protected $em;
 
     /**
      * @var \BplCrud\QueryFilter 
@@ -59,17 +59,17 @@ class Crud implements CrudInterface {
     /**
      * Default constructor
      * @param FormInterface $form
-     * @param EntityManagerInterface $persistanceManager
+     * @param EntityManagerInterface $em
      * @param string $objectClass
      */
-    public function __construct(FormInterface $form, EntityManagerInterface $persistanceManager, $objectClass = '', FormRendererInterface $formRenderer = NULL) {
+    public function __construct(FormInterface $form, EntityManagerInterface $em, $objectClass = '', FormRendererInterface $formRenderer = NULL) {
         $this->form = $form;
-        $this->persistanceManager = $persistanceManager;
+        $this->em = $em;
         if ($objectClass == '') {
             $objectClass = get_class($this->form->getObject());
         }
         $this->objectClass = $objectClass;
-        $this->objectRepository = $this->persistanceManager->getRepository($objectClass);
+        $this->objectRepository = $this->em->getRepository($objectClass);
 
         /**
          * If renderer is not provided; use default renderer
@@ -130,8 +130,8 @@ class Crud implements CrudInterface {
     public function create() {
         $valid = $this->isvalid();
         if ($valid) {
-            $this->persistanceManager->persist($this->form->getObject());
-            $this->persistanceManager->flush();
+            $this->em->persist($this->form->getObject());
+            $this->em->flush();
         }
         return $valid;
     }
@@ -147,7 +147,7 @@ class Crud implements CrudInterface {
      * @return \Doctrine\ORM\Tools\Pagination\Paginator
      */
     public function read(QueryFilter $queryFilter, $offset = 0, $limit = 10, $orderBy = []) {
-        $qb = $this->persistanceManager->createQueryBuilder();
+        $qb = $this->em->createQueryBuilder();
         $qb->select('u')->from($this->objectClass, 'u');
         $qb = $queryFilter->getModifiedQueryBuilder($qb);
         $qb->setFirstResult($offset);
@@ -175,8 +175,8 @@ class Crud implements CrudInterface {
     public function update() {
         $valid = $this->isvalid();
         if ($valid) {
-            $this->persistanceManager->merge($this->form->getObject());
-            $this->persistanceManager->flush();
+            $this->em->merge($this->form->getObject());
+            $this->em->flush();
         }
         return $valid;
     }
@@ -187,7 +187,7 @@ class Crud implements CrudInterface {
      * @return integer
      */
     public function getTotalRecordCount(QueryFilter $queryFilter) {
-        $qb = $this->persistanceManager->createQueryBuilder();
+        $qb = $this->em->createQueryBuilder();
         $qb->select('count(u)')->from($this->objectClass, 'u');
         $qb = $queryFilter->getModifiedQueryBuilder($qb);
         return $qb->getQuery()->getSingleScalarResult();
@@ -198,11 +198,11 @@ class Crud implements CrudInterface {
      * @param object $entity
      */
     public function saveEntity($entity) {
-        $key = $this->persistanceManager->getClassMetadata(get_class($entity))->getSingleIdentifierFieldName();
+        $key = $this->em->getClassMetadata(get_class($entity))->getSingleIdentifierFieldName();
         $entityMethod = 'get' . ucfirst($key);
         $persistanceMethod = $entity->$entityMethod() == NULL ? 'persist' : 'merge';
-        $this->persistanceManager->$persistanceMethod($entity);
-        $this->persistanceManager->flush();
+        $this->em->$persistanceMethod($entity);
+        $this->em->flush();
     }
 
     /**
@@ -211,8 +211,8 @@ class Crud implements CrudInterface {
      * @return boolean
      */
     public function delete($object) {
-        $this->persistanceManager->remove($object);
-        $this->persistanceManager->flush();
+        $this->em->remove($object);
+        $this->em->flush();
         return true;
     }
 
@@ -307,7 +307,7 @@ class Crud implements CrudInterface {
                     $ret['rowsInserted'] ++;
                 }
             }
-            $this->persistanceManager->clear();
+            $this->em->clear();
         }
         $ret['result'] = true;
         return $ret;
@@ -324,12 +324,12 @@ class Crud implements CrudInterface {
     }
 
     /**
-     * Returns FQCN of all the entities managed by $persistanceManager
-     * @param EntityManagerInterface $persistanceManager
+     * Returns FQCN of all the entities managed by $em
+     * @param EntityManagerInterface $em
      * @return array
      */
-    static public function getAllEntityNames(EntityManagerInterface $persistanceManager) {
-        $metadata = $persistanceManager->getMetadataFactory()->getAllMetadata();
+    static public function getAllEntityNames(EntityManagerInterface $em) {
+        $metadata = $em->getMetadataFactory()->getAllMetadata();
         $entityNames = [];
         foreach ($metadata as $classMeta) {
             $entityNames[] = $classMeta->getName(); // Entity FQCN
