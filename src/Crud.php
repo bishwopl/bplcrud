@@ -266,6 +266,7 @@ class Crud implements CrudInterface {
 
         foreach ($formData as $rowNo => $row) {
             $d = [];
+            $actualRowNo = $rowNo+2;
             $row = $this->manipulateImportDataRow($row);
             if ($baseFieldSetName != '') {
                 $d[$baseFieldSetName] = $row;
@@ -279,7 +280,6 @@ class Crud implements CrudInterface {
                     //record exists so update it
                     $this->form->bind($obj);
                     $this->setData($d);
-                    $actualRowNo = $rowNo+2;
                     if ($this->update() == false) {
                         $msg = "Data validation error at row " . $actualRowNo . " during update";
                         if ($ignoreErrors) {
