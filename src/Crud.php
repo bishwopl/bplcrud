@@ -274,22 +274,26 @@ class Crud implements CrudInterface {
             }
 
             $obj = $this->objectRepository->findOneBy([$keyFieldName => $row[$keyFieldName]]);
-            if (is_object($obj) && $updateIfFound) {
-                //record exists so update it
-                $this->form->bind($obj);
-                $this->setData($d);
-                $actualRowNo = $rowNo+2;
-                if ($this->update() == false) {
-                    $msg = "Data validation error at row " . $actualRowNo . " during update";
-                    if ($ignoreErrors) {
-                        $ret['messages'][] = $msg;
-                        $ret['errors'][] = ['rowNo' => $actualRowNo, 'message' => $this->form->getMessages()];
+            if (is_object($obj)) {
+                if($updateIfFound){
+                    //record exists so update it
+                    $this->form->bind($obj);
+                    $this->setData($d);
+                    $actualRowNo = $rowNo+2;
+                    if ($this->update() == false) {
+                        $msg = "Data validation error at row " . $actualRowNo . " during update";
+                        if ($ignoreErrors) {
+                            $ret['messages'][] = $msg;
+                            $ret['errors'][] = ['rowNo' => $actualRowNo, 'message' => $this->form->getMessages()];
+                        } else {
+                            throw new \Exception($msg);
+                        }
                     } else {
-                        throw new \Exception($msg);
+                        $ret['messages'][] = "Data updated for " . $keyFieldName . ' : ' . $row[$keyFieldName];
+                        $ret['rowsUpdated'] ++;
                     }
-                } else {
-                    $ret['messages'][] = "Data updated for " . $keyFieldName . ' : ' . $row[$keyFieldName];
-                    $ret['rowsUpdated'] ++;
+                }else{
+                    continue;
                 }
             } else {
                 //record doesnot exist so insert it
