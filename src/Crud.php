@@ -278,11 +278,12 @@ class Crud implements CrudInterface {
                 //record exists so update it
                 $this->form->bind($obj);
                 $this->setData($d);
+                $actualRowNo = $rowNo+2;
                 if ($this->update() == false) {
-                    $msg = "Data validation error at row " . $rowNo . " during update";
+                    $msg = "Data validation error at row " . $actualRowNo . " during update";
                     if ($ignoreErrors) {
                         $ret['messages'][] = $msg;
-                        $ret['errors'][] = ['rowNo' => $rowNo, 'message' => $this->form->getMessages()];
+                        $ret['errors'][] = ['rowNo' => $actualRowNo, 'message' => $this->form->getMessages()];
                     } else {
                         throw new \Exception($msg);
                     }
@@ -295,10 +296,10 @@ class Crud implements CrudInterface {
                 $this->form->bind(new $this->objectClass);
                 $this->setData($d);
                 if ($this->create() == false) {
-                    $msg = "Data validation error at row " . $rowNo;
+                    $msg = "Data validation error at row " . $actualRowNo;
                     if ($ignoreErrors) {
                         $ret['messages'][] = $msg;
-                        $ret['errors'][] = ['rowNo' => $rowNo, 'message' => $this->form->getMessages()];
+                        $ret['errors'][] = ['rowNo' => $actualRowNo, 'message' => $this->form->getMessages()];
                     } else {
                         throw new \Exception($msg);
                     }
