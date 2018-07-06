@@ -310,7 +310,7 @@ class Crud implements CrudInterface {
                         throw new \Exception($msg);
                     }
                 } else {
-                    $ret['messages'][] = "Data inserted for " . $keyFieldName . ' : ' . $row[$keyFieldName];
+                    $ret['messages'][] = "Data inserted for row number = " . $actualRowNo;
                     $ret['rowsInserted'] ++;
                 }
             }
