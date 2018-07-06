@@ -250,7 +250,8 @@ class Crud implements CrudInterface {
         }
         $fileHandle = fopen($absFilePath, 'r');
         $fieldNames = fgetcsv($fileHandle, 99999, ",");
-        if (!in_array($keyFieldName, $fieldNames)) {
+        
+        if ($keyFieldName!=='' && !in_array($keyFieldName, $fieldNames)) {
             throw new \Exception($keyFieldName . " must be present and cannot be empty");
         }
 
@@ -274,7 +275,8 @@ class Crud implements CrudInterface {
                 $d = $row;
             }
 
-            $obj = $this->objectRepository->findOneBy([$keyFieldName => $row[$keyFieldName]]);
+            $obj = $keyFieldName!==''?$this->objectRepository->findOneBy([$keyFieldName => $row[$keyFieldName]]):null;
+            
             if (is_object($obj)) {
                 if($updateIfFound){
                     //record exists so update it
