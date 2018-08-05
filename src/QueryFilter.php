@@ -28,7 +28,7 @@ class QueryFilter {
     /**
      * @var array 
      */
-    protected $queryFilterArray = [];
+    public $queryFilterArray = [];
 
     /**
      * Takes an array of 
