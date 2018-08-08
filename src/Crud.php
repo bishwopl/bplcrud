@@ -251,6 +251,10 @@ class Crud implements CrudInterface {
         $fileHandle = fopen($absFilePath, 'r');
         $fieldNames = fgetcsv($fileHandle, 99999, ",");
         
+        foreach($fieldNames as $key => $f){
+            $fieldNames[$key] = lcfirst(str_replace(" ","",ucwords(str_replace("_", " ", $f))));
+        }
+        
         if ($keyFieldName!=='' && !in_array($keyFieldName, $fieldNames)) {
             throw new \Exception($keyFieldName . " must be present and cannot be empty");
         }
