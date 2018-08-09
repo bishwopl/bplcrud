@@ -26,6 +26,12 @@ class QueryFilter {
     public static $or = 'or';
 
     /**
+     *
+     * @var array 
+     */
+    public $rawFilterData = [];
+
+    /**
      * @var array 
      */
     public $queryFilterArray = [];
@@ -45,8 +51,9 @@ class QueryFilter {
      * </code>
      * @param array $queryFilterArray
      */
-    public function __construct($queryFilterArray) {
+    public function __construct($queryFilterArray, $rawFilterData = []) {
         $this->queryFilterArray = $queryFilterArray;
+        $this->rawFilterData = $rawFilterData;
     }
 
     /**
