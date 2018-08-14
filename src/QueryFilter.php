@@ -83,7 +83,7 @@ class QueryFilter {
                 $expr = $qb->expr()->gte($colName, ':' . $cleanColName . $paramCount);
             } elseif ($compareType == self::$isNotNull) {
                 $expr = $qb->expr()->isNotNull($colName);
-            } elseif ($compareType == self::$isNotNull) {
+            } elseif ($compareType == self::$isNull) {
                 $expr = $qb->expr()->isNull($colName);
             } elseif ($compareType == self::$like) {
                 $expr = $qb->expr()->like($colName, ':' . $cleanColName . $paramCount);
