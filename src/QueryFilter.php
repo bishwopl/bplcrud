@@ -68,6 +68,7 @@ class QueryFilter {
             $value = $filter['value'];
             $compareType = $filter['compareType'];
             $perviousFilterCombiner = $filter['perviousFilterCombiner'];
+            $nullComparator = false;
 
             if (strpos($colName, '.') === false) {
                 $colName = 'u.' . $colName;
@@ -82,8 +83,10 @@ class QueryFilter {
             } elseif ($compareType == self::$gte) {
                 $expr = $qb->expr()->gte($colName, ':' . $cleanColName . $paramCount);
             } elseif ($compareType == self::$isNotNull) {
+                $nullComparator = true;
                 $expr = $qb->expr()->isNotNull($colName);
             } elseif ($compareType == self::$isNull) {
+                $nullComparator = true;
                 $expr = $qb->expr()->isNull($colName);
             } elseif ($compareType == self::$like) {
                 $expr = $qb->expr()->like($colName, ':' . $cleanColName . $paramCount);
@@ -98,7 +101,11 @@ class QueryFilter {
             } else {
                 throw new InvalidComparatorException("Invalid comparator selected");
             }
-            $params[$cleanColName . $paramCount] = $value;
+
+            if ($nullComparator == false) {
+                $params[$cleanColName . $paramCount] = $value;
+            }
+
             if ($perviousFilterCombiner == self::$and) {
                 $qb->andWhere($expr);
             } elseif ($perviousFilterCombiner == self::$or) {
@@ -106,6 +113,7 @@ class QueryFilter {
             } else {
                 throw new InvalidExpressionCombinerException("Invalid expression combiner provided only 'and' and 'or' allowed.");
             }
+
             $paramCount++;
         }
         $qb->setParameters($params);
