@@ -22,7 +22,7 @@
         "laminas/laminas-form": "^2.15",
         "laminas/laminas-i18n": "^2.11",
         "laminas/laminas-paginator": "^2.9",
-        "laminas/laminas-code": "^4.0",
+        "laminas/laminas-code": "^2.6.3 || ^3.0.2 || ^4.0",
         "laminas/laminas-view": "^2.12"
     },
     "autoload": {
