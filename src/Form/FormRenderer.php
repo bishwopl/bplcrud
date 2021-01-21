@@ -7,63 +7,63 @@
 namespace BplCrud\Form;
 
 use BplCrud\Contract\FormRendererInterface;
-use Zend\Form\FormInterface;
+use Laminas\Form\FormInterface;
 
 class FormRenderer implements FormRendererInterface {
 
     /**
      *
-     * @var \Zend\Form\View\Helper\FormRow 
+     * @var \Laminas\Form\View\Helper\FormRow 
      */
     public $rowHelper;
 
     /**
      *
-     * @var \Zend\Form\View\Helper\FormElement 
+     * @var \Laminas\Form\View\Helper\FormElement 
      */
     public $elementHelper;
 
     /**
      *
-     * @var \Zend\Form\View\Helper\FormCollection 
+     * @var \Laminas\Form\View\Helper\FormCollection 
      */
     public $collectionHelper;
 
     /**
      *
-     * @var \Zend\Form\View\Helper\Form 
+     * @var \Laminas\Form\View\Helper\Form 
      */
     public $formHelper;
 
     /**
      *
-     * @var \Zend\Form\View\Helper\FormElementErrors 
+     * @var \Laminas\Form\View\Helper\FormElementErrors 
      */
     public $errorHelper;
 
     /**
      *
-     * @var \Zend\View\Renderer\PhpRenderer 
+     * @var \Laminas\View\Renderer\PhpRenderer 
      */
     protected $renderer;
 
     /**
      *
-     * @var \Zend\Form\FormInterface
+     * @var \Laminas\Form\FormInterface
      */
     protected $form;
 
     public function __construct() {
-        $this->rowHelper = new \Zend\Form\View\Helper\FormRow();
-        $this->elementHelper = new \Zend\Form\View\Helper\FormElement();
-        $this->collectionHelper = new \Zend\Form\View\Helper\FormCollection();
-        $this->formHelper = new \Zend\Form\View\Helper\Form();
-        $this->errorHelper = new \Zend\Form\View\Helper\FormElementErrors();
+        $this->rowHelper = new \Laminas\Form\View\Helper\FormRow();
+        $this->elementHelper = new \Laminas\Form\View\Helper\FormElement();
+        $this->collectionHelper = new \Laminas\Form\View\Helper\FormCollection();
+        $this->formHelper = new \Laminas\Form\View\Helper\Form();
+        $this->errorHelper = new \Laminas\Form\View\Helper\FormElementErrors();
 
-        $this->renderer = new \Zend\View\Renderer\PhpRenderer();
-        $configProvider = new \Zend\Form\ConfigProvider();
+        $this->renderer = new \Laminas\View\Renderer\PhpRenderer();
+        $configProvider = new \Laminas\Form\ConfigProvider();
 
-        $this->renderer->setHelperPluginManager(new \Zend\View\HelperPluginManager(new \Zend\ServiceManager\ServiceManager(), $configProvider()['view_helpers']));
+        $this->renderer->setHelperPluginManager(new \Laminas\View\HelperPluginManager(new \Laminas\ServiceManager\ServiceManager(), $configProvider()['view_helpers']));
         $this->rowHelper->setView($this->renderer);
         $this->elementHelper->setView($this->renderer);
         $this->collectionHelper->setView($this->renderer);
@@ -75,10 +75,10 @@ class FormRenderer implements FormRendererInterface {
         echo $this->formHelper->openTag($this->form);
 
         foreach ($this->form as $element) {
-            if ($element instanceof \Zend\Form\Fieldset) {
+            if ($element instanceof \Laminas\Form\Fieldset) {
                 foreach ($element as $em) {
                     echo '<div class="form_element">' . PHP_EOL;
-                    if ($em instanceof \Zend\Form\Element\Collection) {
+                    if ($em instanceof \Laminas\Form\Element\Collection) {
                         if ($em->getCount() > 0) {
                             echo $this->collectionHelper->render($em) . PHP_EOL;
                         }

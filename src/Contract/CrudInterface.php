@@ -5,11 +5,16 @@
  */
 
 namespace BplCrud\Contract;
+
 use BplCrud\QueryFilter;
 
-interface CrudInterface{
+interface CrudInterface {
+
     public function create();
+
     public function read(QueryFilter $queryFilter, $offset = 0, $limit = 10);
+
     public function update();
+
     public function delete($object);
 }

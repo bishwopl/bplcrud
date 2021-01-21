@@ -1,7 +1,12 @@
 <?php
 
+/**
+ * @author Bishwo Prasad Lamichhane <bishwo.prasad@gmail.com>
+ */
+
 namespace BplCrud\Contract;
-use Zend\Form\FormInterface;
+
+use Laminas\Form\FormInterface;
 
 interface FormRendererInterface {
 

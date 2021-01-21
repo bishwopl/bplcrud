@@ -1,12 +1,12 @@
 {
     "name": "bishwopl/bplcrud",
-    "description": "Simple crud package and form generator using zend-form and doctrine-orm",
+    "description": "Simple crud package and form generator using laminas-form and doctrine-orm",
     "type": "library",
     "homepage": "https://github.com/bishwopl/bplcrud",
     "keywords": [
         "crud",
         "form-generator",
-        "zend-form",
+        "laminas-form",
         "doctrine"
     ],
     "authors": [
@@ -16,16 +16,14 @@
         }
     ],
     "require": {
-        "php": ">=5.6.0",
-        "zendframework/zend-form": "^2.00",
-        "doctrine/doctrine-module": "^1.2 || ^2.0",
-        "doctrine/orm": "^2.5",
-        "doctrine/doctrine-module": "^2.0",
-        "zendframework/zend-i18n": "^2.8",
-        "zendframework/zend-paginator": "^2.8",
-        "zendframework/zend-code": "^3.1",
-        "zendframework/zend-hydrator": "^2.4",
-        "zendframework/zend-view": "^2.0"
+        "php": "^7.4",
+        "doctrine/orm": "^2.8",
+        "doctrine/doctrine-module": "^4.1",
+        "laminas/laminas-form": "^2.15",
+        "laminas/laminas-i18n": "^2.11",
+        "laminas/laminas-paginator": "^2.9",
+        "laminas/laminas-code": "^4.0",
+        "laminas/laminas-view": "^2.12"
     },
     "autoload": {
         "psr-4": { 
