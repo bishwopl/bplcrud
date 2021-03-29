@@ -1,14 +1,14 @@
 <?php
 
-/**
- * @author Bishwo Prasad Lamichhane <bishwo.prasad@gmail.com>
- */
-
 namespace BplCrud\Form;
 
 use BplCrud\Contract\FormRendererInterface;
 use Laminas\Form\FormInterface;
 
+/**
+ * Form display helper
+ * @author Bishwo Prasad Lamichhane <bishwo.prasad@gmail.com>
+ */
 class FormRenderer implements FormRendererInterface {
 
     /**
