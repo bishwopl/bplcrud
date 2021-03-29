@@ -4,13 +4,14 @@ namespace BplCrud;
 
 use Laminas\Form\FormInterface;
 use BplCrud\Form\FormRenderer;
+use BplCrud\Contract\CrudInterface;
 use BplCrud\Contract\MapperInterface;
 use BplCrud\Contract\FormRendererInterface;
 
 /**
  * @author Bishwo Prasad Lamichhane <bishwo.prasad@gmail.com>
  */
-class Crud implements MapperInterface {
+class Crud implements CrudInterface {
 
     /**
      * Storage operations are done through mapper
@@ -173,6 +174,13 @@ class Crud implements MapperInterface {
     public function setFormAttribute($key, $attribute) {
         $this->form->setAttribute($key, $attribute);
         return;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getForm(): FormInterface {
+        return $this->form;
     }
 
 }
