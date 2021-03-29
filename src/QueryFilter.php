@@ -1,29 +1,28 @@
 <?php
 
-/**
- * @author Bishwo Prasad Lamichhane <bishwo.prasad@gmail.com>
- */
-
 namespace BplCrud;
 
 use Doctrine\ORM\QueryBuilder;
 use BplCrud\Exception\InvalidComparatorException;
 use BplCrud\Exception\InvalidExpressionCombinerException;
 
+/**
+ * @author Bishwo Prasad Lamichhane <bishwo.prasad@gmail.com>
+ */
 class QueryFilter {
 
-    public static $eq = 'eq';
-    public static $gt = 'gt';
-    public static $lt = 'lt';
-    public static $gte = 'gte';
-    public static $lte = 'lte';
-    public static $neq = 'neq';
-    public static $isNull = 'isNull';
+    public static $eq        = 'eq';
+    public static $gt        = 'gt';
+    public static $lt        = 'lt';
+    public static $gte       = 'gte';
+    public static $lte       = 'lte';
+    public static $neq       = 'neq';
+    public static $isNull    = 'isNull';
     public static $isNotNull = 'isNotNull';
-    public static $like = 'like';
-    public static $notLike = 'notLike';
-    public static $and = 'and';
-    public static $or = 'or';
+    public static $like      = 'like';
+    public static $notLike   = 'notLike';
+    public static $and       = 'and';
+    public static $or        = 'or';
 
     /**
      * @var array 
@@ -114,7 +113,10 @@ class QueryFilter {
     
     /**
      * Creates a query filter compatible with \BplCrud\Crud from 1-D array like 
-     * ["key1"=>"value1","key2"=>"value2"]
+     * [
+     *     "key1"=>"value1",
+     *     "key2"=>"value2"
+     * ]
      * where key1, key2 are column names and value1 and value2 search terms.
      * If value is number then "equal to" comparator is used otherwise "like"
      * comparator is used.
