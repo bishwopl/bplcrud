@@ -107,5 +107,26 @@ class DoctrineMapper implements MapperInterface {
         $paginator = new Paginator($query);
         return $paginator;
     }
+    
+    /**
+     * {@inheritdoc}
+     */
+    public function getNoOfPages($queryFilter, $recordPerPage){
+        $recordCount = $this->getTotalRecordCount($queryFilter);
+        return ceil($recordCount/$recordPerPage);
+    }
+    
+    /**
+     * {@inheritdoc}
+     */
+    public function getTotalRecordCount($queryFilter){
+        if(is_array($queryFilter)){
+            $queryFilter = QueryFilter::create($queryFilter, 'and');
+        }
+        $qb = $queryFilter->getModifiedQueryBuilder(
+                $this->getRepository()->createQueryBuilder("u")
+        );
+        return $qb->getQuery()->getSingleScalarResult();
+    }
 
 }
