@@ -1,39 +1,26 @@
 <?php
 
+namespace BplCrud\Contract;
+
+use BplCrud\QueryFilter;
+
 /**
  * @author Bishwo Prasad Lamichhane <bishwo.prasad@gmail.com>
  */
-
-namespace BplCrud\Contract;
-use BplCrud\QueryFilter;
-
-interface MapperInterface {
+interface MapperInterface extends CrudInterface {
 
     /**
-     * Save $object in database
-     * @param type $object
-     */
-    public function create($object);
-
-    /**
-     * Update record 
-     * @param type $object
-     */
-    public function update($object);
-
-    /**
-     * Delete $object from database
-     * @param type $object
-     */
-    public function delete($object);
-
-    /**
-     * Read records from database
-     * 
+     * Return total no of pages
      * @param \BplCrud\QueryFilter | array $queryFilter
-     * @param int $offset default 0
-     * @param int $limit default 10
-     * @param array type $orderBy Order by is of type ["columnName1"=>"ASC/DESC", "columnName2"=>"ASC/DESC"]
+     * @param int $recordPerPage
+     * @return type
      */
-    public function read($queryFilter, $offset = 0, $limit = 10, $orderBy = []);
+    public function getNoOfPages($queryFilter, $recordPerPage);
+
+    /**
+     * Returns total no of records for a given filter condition
+     * @param \BplCrud\QueryFilter | array $queryFilter
+     * @return int
+     */
+    public function getTotalRecordCount($queryFilter);
 }
