@@ -1,34 +1,31 @@
 <?php
 
-/**
- * @author Bishwo Prasad Lamichhane <bishwo.prasad@gmail.com>
- */
-
 namespace BplCrud;
 
 use Laminas\Form\FormInterface;
-use Doctrine\ORM\EntityManagerInterface;
 use BplCrud\Form\FormRenderer;
 use BplCrud\Contract\MapperInterface;
-use BplCrud\Mapper\DoctrineMapper;
 use BplCrud\Contract\FormRendererInterface;
 
+/**
+ * @author Bishwo Prasad Lamichhane <bishwo.prasad@gmail.com>
+ */
 class Crud implements MapperInterface {
 
     /**
-     * Database operations are done through mapper
+     * Storage operations are done through mapper
      * @var \BplCrud\Contract\MapperInterface 
      */
     protected $mapper;
 
     /**
-     * Form through which data u
+     * Form for record creation and update, contains data validators and filters
      * @var \Laminas\Form\FormInterface 
      */
     protected $form;
 
-    public function __construct(EntityManagerInterface $em, FormInterface $form, $entityName) {
-        $this->mapper = new DoctrineMapper($em, $entityName);
+    public function __construct(MapperInterface $mapper, FormInterface $form) {
+        $this->mapper = $mapper;
         $this->form = $form;
     }
 
@@ -36,7 +33,7 @@ class Crud implements MapperInterface {
      * {@inheritdoc}
      */
     public function create($object) {
-        return $this->mapper->save($object);
+        return $this->mapper->create($object);
     }
 
     /**
@@ -67,8 +64,9 @@ class Crud implements MapperInterface {
      */
     public function bind($object) {
         $this->form->bind($object);
+        return;
     }
-    
+
     /**
      * Get object from form
      * @param object $object
@@ -76,15 +74,16 @@ class Crud implements MapperInterface {
     public function getObject() {
         return $this->form->getObject();
     }
-    
+
     /**
      * Set data from input from
      * @param array $formData
      */
     public function setData($formData) {
         $this->form->setData($formData);
+        return;
     }
-    
+
     /**
      * Check if form is valid
      * Method setData() must be called before this
@@ -110,7 +109,7 @@ class Crud implements MapperInterface {
         $errors = $this->getMessages();
         return $this->getList($errors);
     }
-    
+
     /**
      * Display form in html
      * @param FormRendererInterface|NULL $renderer
@@ -120,6 +119,7 @@ class Crud implements MapperInterface {
             $renderer = new FormRenderer();
         }
         $renderer->displayForm($this->form);
+        return;
     }
 
     /**
@@ -127,10 +127,10 @@ class Crud implements MapperInterface {
      * @param array $array
      * @return string
      */
-    protected function getList($array) {
+    protected function getList($array, $listStyle = "ul") {
         $ret = '';
         if (is_array($array) && sizeof($array) > 0) {
-            $ret = '<ul>';
+            $ret = '<' . $listStyle . '>';
             foreach ($array as $key => $value) {
                 $ret .= '<li>' . $key;
                 if (is_array($value)) {
@@ -140,9 +140,39 @@ class Crud implements MapperInterface {
                 }
                 $ret .= '</li>';
             }
-            $ret .= '</ul>';
+            $ret .= '</' . $listStyle . '>';
         }
         return $ret;
+    }
+
+    /**
+     * Return total no of pages
+     * @param \BplCrud\QueryFilter | array $queryFilter
+     * @param int $recordPerPage
+     * @return type
+     */
+    public function getNoOfPages($queryFilter, $recordPerPage) {
+        return $this->mapper->getNoOfPages($queryFilter, $recordPerPage);
+    }
+
+    /**
+     * Returns total no of records for a given filter condition
+     * @param \BplCrud\QueryFilter | array $queryFilter
+     * @return int
+     */
+    public function getTotalRecordCount($queryFilter) {
+        return $this->mapper->getTotalRecordCount($queryFilter);
+    }
+
+    /**
+     * Set form attribute
+     * @param string $key
+     * @param mixed $attribute
+     * @return void
+     */
+    public function setFormAttribute($key, $attribute) {
+        $this->form->setAttribute($key, $attribute);
+        return;
     }
 
 }
