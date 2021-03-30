@@ -135,7 +135,7 @@ class FormGenerator {
         $associationMapping = $this->classMetadata->associationMappings;
 
         $body = 'parent::__construct($name, $options);' . PHP_EOL . PHP_EOL
-                . '$this->setHydrator(new \\' . $this->hyadratorClassName . '($persistanceManager));' . PHP_EOL
+                . '$this->setHydrator(new \\' . $this->hyadratorClassName . '($persistanceManager, false));' . PHP_EOL
                 . '$this->setObject(new \\' . $this->objectClassName . '());' . PHP_EOL . PHP_EOL;
 
         $bodyFilter = "return [" . PHP_EOL;
