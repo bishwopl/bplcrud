@@ -8,11 +8,11 @@ namespace BplCrud\Contract;
 
 use BplCrud\QueryFilter;
 
-interface CrudInterface extends MapperInterface{
-    
+interface CrudInterface extends MapperInterface {
+
     /**
      * Get form object
      * @return \Laminas\Form\FormInterface
      */
-    public function getForm();
+    public function getForm(): \Laminas\Form\FormInterface;
 }

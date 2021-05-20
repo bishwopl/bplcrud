@@ -120,12 +120,18 @@ class DoctrineMapper implements MapperInterface {
      * {@inheritdoc}
      */
     public function getTotalRecordCount($queryFilter){
+        $ids = $this->entityManager->getClassMetadata($this->entityName)->getIdentifier();
+        $key = $ids;
+        if(is_array($ids)){
+            $key = $ids[0];
+        }
         if(is_array($queryFilter)){
             $queryFilter = QueryFilter::create($queryFilter, 'and');
         }
         $qb = $queryFilter->getModifiedQueryBuilder(
-                $this->getRepository()->createQueryBuilder("u")
+                $this->getRepository()->createQueryBuilder('u')
         );
+        $qb->select("COUNT(u.$key)");
         return $qb->getQuery()->getSingleScalarResult();
     }
 
