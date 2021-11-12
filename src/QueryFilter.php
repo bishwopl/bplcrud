@@ -128,14 +128,19 @@ class QueryFilter {
     public static function create($filter, $combineOperator = "and", $className = '') {
         $criteria = [];
         foreach ($filter as $key => $value) {
+            
             if ($className != '' && !property_exists($className, $key)) {
                 continue;
             }
+            
             if ($value == '' || is_array($value)) {
                 continue;
             }
+            
+            //echo 'here'; die();
+            
             $compare = QueryFilter::$eq;
-
+            
             if (strtolower($value) == "null") {
                 $compare = QueryFilter::$isNull;
             } elseif (!is_numeric($value)) {

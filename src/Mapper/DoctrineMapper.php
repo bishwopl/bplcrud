@@ -135,4 +135,11 @@ class DoctrineMapper implements MapperInterface {
         return $qb->getQuery()->getSingleScalarResult();
     }
 
+    /**
+     * {@inheritdoc}
+     */
+    public function findOneById($id) {
+        return $this->getRepository()->find($id);
+    }
+
 }

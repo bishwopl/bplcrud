@@ -183,4 +183,8 @@ class Crud implements CrudInterface {
         return $this->form;
     }
 
+    public function findOneById($id) {
+        return $this->mapper->findOneById($id);
+    }
+
 }

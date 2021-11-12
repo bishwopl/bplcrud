@@ -10,6 +10,12 @@ use BplCrud\QueryFilter;
 interface MapperInterface {
 
     /**
+     * Retrieve an object form ID
+     * @param mixed $id
+     */
+    public function findOneById($id);
+
+    /**
      * Save $object in storage
      * @param type $object
      */
@@ -36,7 +42,7 @@ interface MapperInterface {
      * @param array type $orderBy Order by is of type ["columnName1"=>"ASC/DESC", "columnName2"=>"ASC/DESC"]
      */
     public function read($queryFilter, $offset = 0, $limit = 10, $orderBy = []);
-    
+
     /**
      * Return total no of pages
      * @param \BplCrud\QueryFilter | array $queryFilter
