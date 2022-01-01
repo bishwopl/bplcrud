@@ -3,7 +3,7 @@
 $em = require_once 'entity-manager-configuration.php';
 
 $crud = new \MyCrud\Service\MyEntityService($em);
-$result = $crud->read([
+$result = $crud->findBy([
     "field-name" => "value"
 ]);
 

@@ -6,8 +6,6 @@
 
 namespace BplCrud\Contract;
 
-use BplCrud\QueryFilter;
-
 interface CrudInterface extends MapperInterface {
 
     /**

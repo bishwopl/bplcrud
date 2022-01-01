@@ -33,15 +33,15 @@ class Crud implements CrudInterface {
     /**
      * {@inheritdoc}
      */
-    public function create($object) {
-        return $this->mapper->create($object);
+    public function save($object) {
+        return $this->mapper->save($object);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function read($queryFilter, $offset = 0, $limit = 10, $orderBy = []) {
-        return $this->mapper->read($queryFilter, $offset, $limit, $orderBy);
+    public function findBy($queryFilter, $offset = 0, $limit = 10, $orderBy = []) {
+        return $this->mapper->findBy($queryFilter, $offset, $limit, $orderBy);
     }
 
     /**
@@ -182,9 +182,21 @@ class Crud implements CrudInterface {
     public function getForm(): FormInterface {
         return $this->form;
     }
+    
+    public function find($id) {
+        return $this->mapper->find($id);
+    }
 
-    public function findOneById($id) {
-        return $this->mapper->findOneById($id);
+    public function findAll() {
+        return $this->mapper->findAll();
+    }
+
+    public function findOneBy($criteria) {
+        return $this->mapper->findOneBy($criteria);
+    }
+
+    public function getClassName(): string {
+        return $this->mapper->getClassName();
     }
 
 }

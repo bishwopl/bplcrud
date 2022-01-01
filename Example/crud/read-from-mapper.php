@@ -3,7 +3,7 @@
 $em = require_once 'entity-manager-configuration.php';
 
 $mapper = new \BplCrud\Mapper\DoctrineMapper($em, \MyCrud\Entity\MyEntity::class);
-$result = $mapper->read([
+$result = $mapper->findBy([
     "field-name" => "value"
 ]);
 foreach($result as $r){

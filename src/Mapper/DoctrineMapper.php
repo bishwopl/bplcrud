@@ -3,12 +3,11 @@
 namespace BplCrud\Mapper;
 
 /**
- * Description of AbstractMapper
+ * Description of Mapper
  * @author Bishwo Prasad Lamichhane <bishwo.prasad@gmail.com>
  */
-use Doctrine\DBAL\Connection;
-use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\EntityRepository;
+use Doctrine\Persistence\ObjectManager;
+use Doctrine\Persistence\ObjectRepository;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use BplCrud\Contract\MapperInterface;
 use BplCrud\QueryFilter;
@@ -21,73 +20,62 @@ use BplCrud\QueryFilter;
 class DoctrineMapper implements MapperInterface {
 
     protected $entityManager;
-    protected $entityName;
+    protected $className;
 
-    public function __construct(EntityManager $em, $entityName) {
+    public function __construct(ObjectManager $em, $className) {
         $this->entityManager = $em;
-        $this->entityName = $entityName;
+        $this->className = $className;
     }
 
-    public function getEntityManager(): EntityManager {
+    public function getObjectManager(): ObjectManager {
         return $this->entityManager;
     }
 
-    /**
-     * @param \Doctrine\ORM\EntityManager $entityManager
-     */
-    public function setEntityManager(EntityManager $entityManager) {
-        $this->entityManager = $entityManager;
-    }
-
-    public function getDatabase(): Connection {
-        return $this->entityManager->getConnection();
-    }
-
-    public function getRepository(): EntityRepository {
-        return $this->entityManager->getRepository($this->entityName);
+    public function getRepository(): ObjectRepository {
+        return $this->entityManager->getRepository($this->className);
     }
     
     public function getPrototype() {
-        return new $this->entityName;
+        return new $this->className;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function create($e) {
-        $this->getEntityManager()->persist($e);
-        $this->getEntityManager()->flush($e);
+    public function save($e) {
+        $this->getObjectManager()->persist($e);
+        $this->getObjectManager()->flush($e);
     }
 
     /**
      * {@inheritdoc}
      */
     public function update($e) {
-        $this->getEntityManager()->merge($e);
-        $this->getEntityManager()->flush();
+        $this->getObjectManager()->merge($e);
+        $this->getObjectManager()->flush();
     }
 
     /**
      * {@inheritdoc}
      */
     public function delete($e) {
-        $this->getEntityManager()->remove($e);
-        $this->getEntityManager()->flush();
+        $this->getObjectManager()->remove($e);
+        $this->getObjectManager()->flush();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function read($queryFilter, $offset = 0, $limit = 10, $orderBy = []) {
-        if(is_array($queryFilter)){
-            $queryFilter = QueryFilter::create($queryFilter, 'and');
+    public function findBy($criteria, $offset = 0, $limit = 10, $orderBy = []) {
+        if(is_array($criteria)){
+            $criteria = QueryFilter::create($criteria, 'and');
         }
         
-        if(!$queryFilter instanceof QueryFilter){
+        if(!$criteria instanceof QueryFilter){
             throw new \Exception("Query filter must be provided to read data");
         }
         
-        $qb = $queryFilter->getModifiedQueryBuilder(
+        $qb = $criteria->getModifiedQueryBuilder(
                 $this->getRepository()->createQueryBuilder("u")
         );
         $qb->setFirstResult($offset);
@@ -111,24 +99,24 @@ class DoctrineMapper implements MapperInterface {
     /**
      * {@inheritdoc}
      */
-    public function getNoOfPages($queryFilter, $recordPerPage){
-        $recordCount = $this->getTotalRecordCount($queryFilter);
+    public function getNoOfPages($criteria, $recordPerPage){
+        $recordCount = $this->getTotalRecordCount($criteria);
         return ceil($recordCount/$recordPerPage);
     }
     
     /**
      * {@inheritdoc}
      */
-    public function getTotalRecordCount($queryFilter){
-        $ids = $this->entityManager->getClassMetadata($this->entityName)->getIdentifier();
+    public function getTotalRecordCount($criteria){
+        $ids = $this->entityManager->getClassMetadata($this->className)->getIdentifier();
         $key = $ids;
         if(is_array($ids)){
             $key = $ids[0];
         }
-        if(is_array($queryFilter)){
-            $queryFilter = QueryFilter::create($queryFilter, 'and');
+        if(is_array($criteria)){
+            $criteria = QueryFilter::create($criteria, 'and');
         }
-        $qb = $queryFilter->getModifiedQueryBuilder(
+        $qb = $criteria->getModifiedQueryBuilder(
                 $this->getRepository()->createQueryBuilder('u')
         );
         $qb->select("COUNT(u.$key)");
@@ -138,8 +126,20 @@ class DoctrineMapper implements MapperInterface {
     /**
      * {@inheritdoc}
      */
-    public function findOneById($id) {
+    public function find($id) {
         return $this->getRepository()->find($id);
+    }
+
+    public function findAll() {
+        return $this->getRepository()->findAll();
+    }
+
+    public function findOneBy($criteria) {
+        return $this->getRepository()->findOneBy($criteria);
+    }
+
+    public function getClassName(): string {
+        return $this->className;
     }
 
 }

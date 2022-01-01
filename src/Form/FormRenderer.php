@@ -70,23 +70,19 @@ class FormRenderer implements FormRendererInterface {
     }
 
     public function displayForm(FormInterface $form) {
+
         $this->form = $form;
         $this->form->prepare();
+
+        $this->form->setAttributes([
+            'class' => 'form form-horizontal'
+        ]);
+
         echo $this->formHelper->openTag($this->form);
 
         foreach ($this->form as $element) {
             if ($element instanceof \Laminas\Form\Fieldset) {
-                foreach ($element as $em) {
-                    echo '<div class="form_element">' . PHP_EOL;
-                    if ($em instanceof \Laminas\Form\Element\Collection) {
-                        if ($em->getCount() > 0) {
-                            echo $this->collectionHelper->render($em) . PHP_EOL;
-                        }
-                    } else {
-                        echo $this->rowHelper->render($em) . PHP_EOL;
-                    }
-                    echo '</div>' . PHP_EOL;
-                }
+                $this->displayFieldset($element, $this);
             } else {
                 echo '<div class="form_element">' . PHP_EOL;
                 echo $this->rowHelper->render($element) . PHP_EOL;
@@ -94,6 +90,32 @@ class FormRenderer implements FormRendererInterface {
             }
         }
         echo $this->formHelper->closeTag();
+    }
+
+    protected function displayFieldset(\Laminas\Form\Fieldset $f, $renderer) {
+        $isEmptyFieldset = sizeof($f->getElements());
+        if ($isEmptyFieldset) {
+            echo '<p></p><fieldset class="form-group border p-3">'
+            . '<legend>'
+            . ucwords($f->getName())
+            . '</legend>';
+        }
+        foreach ($f as $em) {
+            if ($em instanceof \Laminas\Form\Fieldset) {
+                $this->displayFieldset($em, $renderer);
+            } else {
+                echo '<div class="form_element">' . PHP_EOL;
+                if ($em instanceof \Laminas\Form\Element\Collection) {
+                    if ($em->getCount() > 0) {
+                        echo $renderer->collectionHelper->render($em) . PHP_EOL;
+                    }
+                } else {
+                    echo $renderer->rowHelper->render($em) . PHP_EOL;
+                }
+                echo '</div>' . PHP_EOL;
+            }
+        }
+        echo '</fieldset><p></p>';
     }
 
 }

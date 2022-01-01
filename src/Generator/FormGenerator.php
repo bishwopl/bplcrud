@@ -232,7 +232,7 @@ class FormGenerator {
         $body = 'parent::__construct($name, $options);' . PHP_EOL . PHP_EOL
                 . $baseFieldsetName . ' = new \\' . $this->formNamespace . '\\' . $this->classNameOnly . 'Fieldset(' . $this->getConstructParamsInString() . ');' . PHP_EOL
                 . $baseFieldsetName . '->setUseAsBaseFieldset(true);' . PHP_EOL
-                . '$this->add(' . $baseFieldsetName . ');' . PHP_EOL;
+                . '$this->add(' . $baseFieldsetName . ',["name"=>"'.lcfirst($this->classNameOnly).'"]);' . PHP_EOL;
 
         $body .= '$this->setAttribute("enctype", "multipart/form-data"); ' . PHP_EOL
                 . '$this->setAttribute("METHOD", "POST"); ' . PHP_EOL
@@ -242,7 +242,7 @@ class FormGenerator {
                 . '"attributes" => [' . PHP_EOL
                 . '"type"  => "submit",' . PHP_EOL
                 . '"value" => "Submit",' . PHP_EOL
-                . '"id"=> "presonalInfoSubmitButton",' . PHP_EOL
+                . '"id"=> "'.lcfirst($this->classNameOnly).'SubmitButton",' . PHP_EOL
                 . '"class" => "btn btn-primary" ' . PHP_EOL
                 . '],' . PHP_EOL
                 . ']);' . PHP_EOL;

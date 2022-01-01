@@ -22,8 +22,8 @@ $dirConf = [
 ];
 
 $entityDirs = [
-    'full filesystem path of entity 1',
-    'full filesystem path of entity 1',
+    'full filesystem path of entities 1',
+    'full filesystem path of entities 2',
 ];
 
 

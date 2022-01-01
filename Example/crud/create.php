@@ -10,7 +10,7 @@ if(isset($_POST['myEntity'])){
     $crud->setData($_POST);
     if($crud->isFormValid()){
         $obj = $crud->getObject();
-        $crud->create($obj);
+        $crud->save($obj);
         echo 'Created successfully';
     }else{
         var_dump($crud->getErrorMessages());
